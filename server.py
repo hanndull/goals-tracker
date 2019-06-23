@@ -29,23 +29,50 @@ def show_homepage():
     return render_template('homepage.html')
 
 
-@app.route('/add-goal', methods=['POST'])
-def add_goal():
+@app.route('/add-user')
+def add_user():
 
-    response = getGoal() ### Need to connect this 
-    goal = response.body['goal']
-    user = response.body['user']
+    ### Get new user and goal info from form user input
+    username = request.args.get('username')
+    name = request.args.get('name')
+    email = request.args.get('email')
+    password = request.args.get('password')
+    goal = request.args.get('goal')
+    goal_completion = request.args.get('goal-completion')
 
-    doc_ref = db.collection(u'sampleGoals').document(u'goal1')
-    doc_ref.set({
-        u'goal': goal,
-        u'user': user,
-    })
 
-    print(goal + " and " + user + " successfully written to db.")
+    user_dict = {
+        u'username': username,
+        u'name': name,
+        u'email': email,
+        u'password': password,
+    }
+
+    ### Add user to db
+
+    doc_ref = db.collection(u'users').document(u'{}'.format(username))
+    doc_ref.set(user_dict) 
+
+
+    # response = getGoal() ### Need to connect this 
+    # goal = response.body['goal']
+    # user = response.body['user']
+
+    # doc_ref = db.collection(u'sampleGoals').document(u'goal1')
+    # doc_ref.set({
+    #     u'goal': goal,
+    #     u'user': user,
+    # })
+
+    return(f"{email} successfully written to db.")
 
     ### Sets goal and user in db. Goal and user can be retrieved in JS??
 
+
+@app.route('/view-users')
+def show_users():
+
+    pass
 
 @app.route('/get-goal', methods=['GET'])
 def retrieve_goal():
@@ -58,6 +85,8 @@ def retrieve_goal():
 
     except google.cloud.exceptions.NotFound:
         print(u'No such document!')
+
+
 
 ##### Dunder-Main ##########################################################
 
