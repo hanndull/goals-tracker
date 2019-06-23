@@ -32,7 +32,7 @@ def show_homepage():
 @app.route('/add-user')
 def add_user():
 
-    ### Get new user and goal info from form user input
+    ### Get new user and goal info from form user input on homepage
     username = request.args.get('username')
     name = request.args.get('name')
     email = request.args.get('email')
@@ -40,19 +40,16 @@ def add_user():
     goal = request.args.get('goal')
     goal_completion = request.args.get('goal-completion')
 
-
     user_dict = {
         u'username': username,
         u'name': name,
         u'email': email,
         u'password': password,
     }
-
-    ### Add user to db
+    
     doc_ref = db.collection(u'users').document(u'{}'.format(username))
-    doc_ref.set(user_dict) 
-    ### TODO - this route is currently overriding the document of user #2 each time
-
+    doc_ref.set(user_dict) ### Add user to db
+    ### TODO - this route is currently overriding the same user document each time
 
     goal_dict = {
         u'goal': goal,
@@ -61,24 +58,14 @@ def add_user():
     }
 
     doc_ref = db.collection(u'goals').document(u'{}'.format(goal))
-    doc_ref.set(goal_dict) 
-    # response = getGoal() ### Need to connect this 
-    # goal = response.body['goal']
-    # user = response.body['user']
-
-    # doc_ref = db.collection(u'sampleGoals').document(u'goal1')
-    # doc_ref.set({
-    #     u'goal': goal,
-    #     u'user': user,
-    # })
+    doc_ref.set(goal_dict) ### Add user's goal to db
 
     return(f"{email} successfully written to db. <<{goal}>> successfully written.")
-
-    ### Sets goal and user in db. Goal and user can be retrieved in JS??
 
 
 @app.route('/view-users')
 def show_users():
+    """View all users written to Firestone -- for production only"""
 
     users_ref = db.collection(u'users')
     docs = users_ref.get()
@@ -92,6 +79,7 @@ def show_users():
 
 @app.route('/view-goals')
 def show_goals():
+    """View all goals written to Firestone -- for production only"""
 
     goals_ref = db.collection(u'goals')
     docs = goals_ref.get()
@@ -105,6 +93,7 @@ def show_goals():
 
 @app.route('/refresh-collections')
 def refresh_collections():
+    """Delete all collections from Firestore-- for use in development only"""
 
     users_ref = db.collection(u'users')
     user_docs = users_ref.get()
@@ -121,21 +110,20 @@ def refresh_collections():
         docs_list.append(f'{doc.to_dict()}')
         doc.reference.delete()
 
-
     return jsonify(docs_list)
 
 
-@app.route('/get-goal', methods=['GET'])
-def retrieve_goal():
+# @app.route('/get-goal', methods=['GET'])
+# def retrieve_goal():
 
-    doc_ref = db.collection(u'sampleGoals').document(u'goal1')
+#     doc_ref = db.collection(u'sampleGoals').document(u'goal1')
 
-    try:
-        doc = doc_ref.get()
-        print(u'Document data: {}'.format(doc.to_dict()))
+#     try:
+#         doc = doc_ref.get()
+#         print(u'Document data: {}'.format(doc.to_dict()))
 
-    except google.cloud.exceptions.NotFound:
-        print(u'No such document!')
+#     except google.cloud.exceptions.NotFound:
+#         print(u'No such document!')
 
 
 
