@@ -49,11 +49,19 @@ def add_user():
     }
 
     ### Add user to db
-
     doc_ref = db.collection(u'users').document(u'{}'.format(username))
     doc_ref.set(user_dict) 
+    ### TODO - this route is currently overriding the document of user #2 each time
 
 
+    goal_dict = {
+        u'goal': goal,
+        u'goal-completion': goal_completion,
+        u'username': username,
+    }
+
+    doc_ref = db.collection(u'goals').document(u'{}'.format(goal))
+    doc_ref.set(goal_dict) 
     # response = getGoal() ### Need to connect this 
     # goal = response.body['goal']
     # user = response.body['user']
@@ -64,7 +72,7 @@ def add_user():
     #     u'user': user,
     # })
 
-    return(f"{email} successfully written to db.")
+    return(f"{email} successfully written to db. <<{goal}>> successfully written.")
 
     ### Sets goal and user in db. Goal and user can be retrieved in JS??
 
@@ -72,7 +80,50 @@ def add_user():
 @app.route('/view-users')
 def show_users():
 
-    pass
+    users_ref = db.collection(u'users')
+    docs = users_ref.get()
+    docs_list = []
+
+    for doc in docs:
+        docs_list.append(f'{doc.to_dict()}') 
+
+    return jsonify(docs_list)
+
+
+@app.route('/view-goals')
+def show_goals():
+
+    goals_ref = db.collection(u'goals')
+    docs = goals_ref.get()
+    docs_list = []
+
+    for doc in docs:
+        docs_list.append(f'{doc.to_dict()}') 
+
+    return jsonify(docs_list)
+
+
+@app.route('/refresh-collections')
+def refresh_collections():
+
+    users_ref = db.collection(u'users')
+    user_docs = users_ref.get()
+    goals_ref = db.collection(u'goals')
+    goal_docs = goals_ref.get()
+
+    docs_list = []
+
+    for doc in user_docs:
+        docs_list.append(f'{doc.to_dict()}') 
+        doc.reference.delete()
+
+    for doc in goal_docs:
+        docs_list.append(f'{doc.to_dict()}')
+        doc.reference.delete()
+
+
+    return jsonify(docs_list)
+
 
 @app.route('/get-goal', methods=['GET'])
 def retrieve_goal():
