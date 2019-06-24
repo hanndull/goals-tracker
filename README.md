@@ -19,9 +19,9 @@ Firebase, Firestone, Python, Flask, JavaScript, jQuery, AJAX, HTML, Jinja, Boots
 In the design for the Firestone db I made a users collection of user info documents, and a parallel goals collection with goal info documents (each goal doc contains a valid username from the user documents). 
 
 #### Users Collection
-    User documents -- username, password(encrypted)
+User documents -- username, password(encrypted)
 #### Goals Collection
-    Goal documents -- goal, goal completion date, username
+Goal documents -- goal, goal completion date, username
 
 ## Security
 
