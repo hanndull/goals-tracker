@@ -1,6 +1,8 @@
 #Some code below patterned after 
     #https://github.com/GoogleCloudPlatform/python-docs-samples/blob/f13dcb36d25cd66f332830daeb9bacbc5ddb4ed9/firestore/cloud-client/snippets.py#L162-L176
 
+###NOTE: No longer in use with app, changed course due to import issues
+
 from firebase_admin import firestore
 from server import default_app
 

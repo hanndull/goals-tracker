@@ -3,6 +3,7 @@ from firebase_admin import credentials, firestore
 from flask import Flask, render_template, request, flash, session, jsonify
 from jinja2 import StrictUndefined
 from flask_debugtoolbar import DebugToolbarExtension
+from passlib.hash import sha256_crypt
 #from model import db, User, Goal ### TODO-- this import line is now causing errors
 
 ##### Firebase #############################################################
@@ -31,36 +32,117 @@ def show_homepage():
 
 @app.route('/add-user')
 def add_user():
+    """Route that adds new goals and users.
+    If username already exists, checks against stored encypted password. 
+    """
 
-    ### Get new user and goal info from form user input on homepage
+    ### Get user and goal info from form user input on homepage
     username = request.args.get('username')
-    name = request.args.get('name')
-    email = request.args.get('email')
-    password = request.args.get('password')
+    entered_password = request.args.get('password')
     goal = request.args.get('goal')
     goal_completion = request.args.get('goal-completion')
 
+    encrypted_password = sha256_crypt.encrypt(entered_password)
+    ### encrypt pw for db, using using SHA256 as the algorithm
+
     user_dict = {
         u'username': username,
-        u'name': name,
-        u'email': email,
-        u'password': password,
+        u'password': encrypted_password,
     }
-    
-    doc_ref = db.collection(u'users').document(u'{}'.format(username))
-    doc_ref.set(user_dict) ### Add user to db
-    ### TODO - this route is currently overriding the same user document each time
+
+    doc_ref = db.collection(u'users').document(f'{username}')
+
+    try:
+        doc = doc_ref.get()
+        dict_doc = doc.to_dict()
+
+        if dict_doc == None:
+            user_ref = db.collection(u'users').document(f'{username}') 
+            user_ref.set(user_dict) ### Add new user to db  
+       
+        else:
+            verification = sha256_crypt.verify(entered_password, dict_doc['password'])
+            
+            if verification == False:
+                return('''Goal not saved.  
+                    Please double check your password, and try again.''')
+            
+            elif verification == True:
+                ### If verified, continues to goal creation
+                print ('>>>>>>>>>>> PASSWORD SUCCESS')
+
+    except google.cloud.exceptions.NotFound:
+        
+        print(u'No such document!')
+        
+        return('''Goal not saved. 
+            Looks like there has been some sort of error. 
+            Please try again later.''')
+   
 
     goal_dict = {
         u'goal': goal,
-        u'goal-completion': goal_completion,
+        u'goalcompletion': goal_completion,
         u'username': username,
     }
 
-    doc_ref = db.collection(u'goals').document(u'{}'.format(goal))
-    doc_ref.set(goal_dict) ### Add user's goal to db
+    goal_ref = db.collection(u'goals').document(u'{}'.format(goal))
+    goal_ref.set(goal_dict) ### Add user's new goal to db
 
-    return(f"{email} successfully written to db. <<{goal}>> successfully written.")
+    return('Your goal was successfully added.')
+
+
+@app.route('/mygoals')
+def render_mygoals():
+    """Render template w/ form that allows user to check saved goals"""
+
+    return render_template('mygoals.html')
+
+
+@app.route('/check-goals')
+def check_user_goals():
+    """Validate user sign in info, and return user goals"""
+
+    username = request.args.get('username')
+    entered_password = request.args.get('password')
+
+    encrypted_password = sha256_crypt.encrypt(entered_password)
+    ### encrypt pw for db, using using SHA256 as the algorithm
+
+    doc_ref = db.collection(u'users').document(f'{username}')
+
+    doc = doc_ref.get()
+    dict_doc = doc.to_dict()
+    #print(u'Document data: {}'.format(dict_doc))
+
+    if dict_doc == None:
+        return('''You have no saved goals. 
+            Please create an account and save one 
+            <a href='/'>here</a>.''')
+   
+    else:
+        verification = sha256_crypt.verify(entered_password, dict_doc['password'])
+        
+        if verification == False:
+            return('''Please double check your username and password, 
+                    and try again.''')
+        
+        elif verification == True:
+            
+            goals_ref = db.collection(u'goals')
+            docs_query = goals_ref.where(u'username', u'==', f'{username}')
+            docs = docs_query.get()
+            
+            goals_list = []
+
+            for doc in docs:
+                goal_info ={
+                    "goal": doc.get('goal'),
+                    "goalcompletion": doc.get('goalcompletion'),
+                }
+                goals_list.append(goal_info)
+
+            return jsonify(goals_list)
 
 
 @app.route('/view-users')

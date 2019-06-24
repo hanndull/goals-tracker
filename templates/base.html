@@ -4,22 +4,32 @@
 <head>
   <title>Goals Tracker</title>
 
+  <style>
+    .nav-gray {
+      background-color: rgb(220,220,220);
+    }
+  </style>
+
   {% block head %} {% endblock %}
 
-<!--   <link rel='icon' href='/static/favicon.ico' type='image/x-icon'/> -->
   <link rel='stylesheet' href='https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css' integrity='sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T' crossorigin='anonymous'>
-<!--   <link
-    href='/static/css/bootstrap.css'
-    rel='stylesheet'
-  > -->
+
   <meta property='og:title' content='Goals Tracker' />
-<!--   <meta property='og:image' content=' /> -->
 
 </head>
 
 <body>
 
+  <nav class="nav navbar-dark nav-gray">
+    <a class="nav-link text-primary" href="/">Goal Tracker</a>
+    <a class="nav-link text-primary" href="/mygoals">Check My Goals</a>
+  </nav>
+
   {% block content %} {% endblock %}
+
+  <div class='container fixed-bottom mb-3'>
+    <a href='/'>“If you want to live a happy life, tie it to a goal, not to people or things.” ― Albert Einstein</a>
+  </div>
 
 </body>
 
