@@ -1,0 +1,42 @@
+#### The Challenge ##########################################################
+
+Build a goal tracking app. It should allow users to view, save, and edit goals. Users should only be able to see their own goals. Use Firebase as your database, but all other technology is up to you. Given that this will have private user data, security is important.
+
+
+#### Narrative ############################################################
+
+Before this project, I was entirely new to Firesbase. To get a quick, general idea of the Firebase product, I watched a few intro videos. I learned that the Firebase product Cloud Firestore can essentially stand in as both a simple-to-set-up real-time server and non-relational database, and has useful built-in security efforts, which allow you to mandate what pieces of data which users can access.
+
+I then read through documentation on Firebase on how to get started with Firestone. Initially, I thought it would be best to write everything in JavaScript, and run the server natively in Firebase. After running into some installation issues with authentication on my virtual machine, I decided that I would try out use of Firestone db with a Python server so I could keep moving forward.
+
+First off, I thought it would make most sense to create a model.py, and create classes to help me in manipulating data in the db. This is where I first successfully connected to Firestone. But after building out my server a bit more, the app started throwing errors about being unable to import the classes across files, which I assume had to do with placement of Firebase/Firestone set-up, which I am unaccustomed to. At that point, and in consideration of time, I figured I could do most of the same things via routes in my server, and decided to let model.py go for the time-being.
+
+Next, I built out my server and html templates. I found that it worked well to create forms & have related JavaScript, AJAX, and jQuery all bundled together for this small project. My two main features are a combined registration/goal creation form on the homepage (which I would break apart in the future), and a form to check saved goals on a separate page. 
+
+----------------------------------
+Security 
+
+I considered security in a few ways during this project. Using my Python server made it easy to change access to the Firestone db instance to "Locked". This rids of the visible query string on the user's end, and prevents users from accessing the data other than through my server routes. As for passwords, I decided to encrypt them on registration. I hash and encrypt with the SHA256 algorythm using the passlib library. Whenever a user creates a new goal under the same account, or checks their saved goals, their inpu password is encrypted and validated against the encrypted password stored in the db. I would also plan to deploy this site in https.
+
+On a related note, for db security, I selected a multi-region location data storage, nam5(US-Central), which Firebase docs say "can withstand the loss of entire regions and maintain availability without losing data" better than specific region selections.
+
+-----------------------------------
+NoSQL Database Design 
+
+In the design for the Firestone db I made a users collection of user info documents, and a parallel goals collection with goal info documents (each goal doc contains a valid username from the user documents). 
+
+Users Collection
+    User documents -- username, password(encrypted)
+Goals Collection
+    Goal documents -- goal, goal completion date, username
+
+This video (https://youtu.be/v_hR4K4auoQ) from the Firebase YouTube account helped me better understand the design difference between relational dbs and NoSQL dbs.
+
+------------------------------------
+The Stack
+
+Firebase, Firestone, Python, Flask, JavaScript, jQuery, AJAX, HTML, Jinja, Bootstrap
+
+
+-Hannah Johnson, 2019.06.24
+

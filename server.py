@@ -1,10 +1,10 @@
 import firebase_admin
 from firebase_admin import credentials, firestore
-from flask import Flask, render_template, request, flash, session, jsonify
+from flask import Flask, render_template, request, jsonify
 from jinja2 import StrictUndefined
 from flask_debugtoolbar import DebugToolbarExtension
-from passlib.hash import sha256_crypt
-#from model import db, User, Goal ### TODO-- this import line is now causing errors
+from passlib.hash import sha256_crypt 
+    ###recommended from https://pythonprogramming.net/password-hashing-flask-tutorial/
 
 ##### Firebase #############################################################
 
@@ -26,6 +26,7 @@ app.jinja_env.undefined = StrictUndefined
 
 @app.route('/')
 def show_homepage():
+    """Render the homepage template"""
 
     return render_template('homepage.html')
 
@@ -79,7 +80,6 @@ def add_user():
             Looks like there has been some sort of error. 
             Please try again later.''')
    
-
     goal_dict = {
         u'goal': goal,
         u'goalcompletion': goal_completion,
@@ -113,7 +113,6 @@ def check_user_goals():
 
     doc = doc_ref.get()
     dict_doc = doc.to_dict()
-    #print(u'Document data: {}'.format(dict_doc))
 
     if dict_doc == None:
         return('''You have no saved goals. 
@@ -147,7 +146,7 @@ def check_user_goals():
 
 @app.route('/view-users')
 def show_users():
-    """View all users written to Firestone -- for production only"""
+    """View all users written to Firestone -- **for development only**"""
 
     users_ref = db.collection(u'users')
     docs = users_ref.get()
@@ -161,7 +160,7 @@ def show_users():
 
 @app.route('/view-goals')
 def show_goals():
-    """View all goals written to Firestone -- for production only"""
+    """View all goals written to Firestone -- **for development only**"""
 
     goals_ref = db.collection(u'goals')
     docs = goals_ref.get()
@@ -175,7 +174,7 @@ def show_goals():
 
 @app.route('/refresh-collections')
 def refresh_collections():
-    """Delete all collections from Firestore-- for use in development only"""
+    """Delete all collections from Firestore-- **for development only**"""
 
     users_ref = db.collection(u'users')
     user_docs = users_ref.get()
@@ -193,20 +192,6 @@ def refresh_collections():
         doc.reference.delete()
 
     return jsonify(docs_list)
-
-
-# @app.route('/get-goal', methods=['GET'])
-# def retrieve_goal():
-
-#     doc_ref = db.collection(u'sampleGoals').document(u'goal1')
-
-#     try:
-#         doc = doc_ref.get()
-#         print(u'Document data: {}'.format(doc.to_dict()))
-
-#     except google.cloud.exceptions.NotFound:
-#         print(u'No such document!')
-
 
 
 ##### Dunder-Main ##########################################################
